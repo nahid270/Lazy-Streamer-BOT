@@ -8,12 +8,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>%s</title>
-    <!-- Old CSS kept as backup, but overridden below -->
+    <!-- Old CSS kept as backup -->
     <link rel="stylesheet" type='text/css' href="https://adarsh-goel.github.io/resources/style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway:400,700">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Delius">
     <link rel="stylesheet" href="https://cdn.plyr.io/3.6.12/plyr.css" />
-    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
     <style>
@@ -51,7 +50,7 @@
             font-weight: bold;
             color: var(--primary-color);
             text-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
-            width: 80%%; /* Fixed for Python string formatting */
+            width: 80%%; 
         }
 
         .toogle {
@@ -59,17 +58,16 @@
             width: 30px;
             height: 30px;
             background: #fff;
-            border-radius: 50%%; /* Fixed for Python string formatting */
+            border-radius: 50%%; 
             margin-right: 15px;
-            /* Simple toggle indicator */
             border: 2px solid var(--primary-color);
         }
 
         /* Player Container */
         .container {
-            width: 90%%; /* Fixed for Python string formatting */
+            width: 90%%; 
             max-width: 900px;
-            margin: 30px auto;
+            margin: 30px auto 10px auto; /* Reduced bottom margin */
             background: var(--bg-card);
             padding: 10px;
             border-radius: 15px;
@@ -82,13 +80,40 @@
             overflow: hidden;
         }
 
+        /* External Player Buttons */
+        .player-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 10px auto 30px auto;
+            flex-wrap: wrap;
+        }
+
+        .ext-player-btn {
+            background: #333;
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            border: 1px solid #444;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ext-player-btn.vlc:hover { background: #ff5722; border-color: #ff5722; }
+        .ext-player-btn.mx:hover { background: #2196f3; border-color: #2196f3; }
+        .ext-player-btn.playit:hover { background: #9c27b0; border-color: #9c27b0; }
+
         /* Social & Product Section */
         .extra-content {
             text-align: center;
             padding: 20px;
             background: var(--bg-card);
             margin: 20px auto;
-            width: 90%%; /* Fixed for Python string formatting */
+            width: 90%%;
             max-width: 880px;
             border-radius: 15px;
             border: 1px solid var(--glass);
@@ -182,7 +207,6 @@
             fill: var(--primary-color);
         }
 
-        /* Dark/Light Logic Keep */
         body.dark { background: #f0f0f0; color: #000; }
         body.dark .container, body.dark .extra-content { background: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         body.dark header { background: #ddd; color: #000; }
@@ -199,11 +223,23 @@
     </header>
 
     <div class="container">
-        <!-- DO NOT CHANGE THIS LINE - SYSTEM VARIABLES -->
-        <tag src="%s" class="player"></tag>
+        <!-- System Variable for Video URL -->
+        <tag src="%s" class="player" id="video-player"></tag>
     </div>
 
-    <!-- New Section: Telegram Button -->
+    <!-- New Feature: Open in External Apps (For Audio/Quality Change) -->
+    <div class="player-options">
+        <a href="#" id="vlc-btn" class="ext-player-btn vlc">
+            <i class="fas fa-cone"></i> Play in VLC
+        </a>
+        <a href="#" id="mx-btn" class="ext-player-btn mx">
+            <i class="fas fa-play-circle"></i> Play in MX
+        </a>
+        <a href="#" id="playit-btn" class="ext-player-btn playit">
+            <i class="fas fa-play"></i> PlayIt
+        </a>
+    </div>
+
     <div class="telegram-btn-container">
         <!-- EDIT YOUR TELEGRAM LINK HERE -->
         <a href="https://t.me/YOUR_CHANNEL_LINK_HERE" class="tg-main-btn">
@@ -211,15 +247,12 @@
         </a>
     </div>
 
-    <!-- New Section: Social Markets & Products -->
     <div class="extra-content">
         <h3 class="extra-title">Follow Us & Products</h3>
         <div class="social-icons">
-            <!-- Example Links: Replace # with your links -->
             <a href="#" class="social-btn"><i class="fab fa-facebook-f"></i> Facebook</a>
             <a href="#" class="social-btn"><i class="fab fa-instagram"></i> Instagram</a>
             <a href="#" class="social-btn"><i class="fas fa-shopping-cart"></i> My Shop</a>
-            <a href="#" class="social-btn"><i class="fas fa-globe"></i> Website</a>
         </div>
     </div>
 
@@ -230,7 +263,7 @@
             </a>
         </h4>
         <div style="margin-top: 10px;">
-            <span id="fork-text">Powered by LazyStreamer | Fork me on</span>
+            <span id="fork-text">Powered by LazyStreamer</span>
             <span>
                 <a href="https://github.com/LazyDeveloperr/Lazy-Streamer-BOT" id='github-logo'>
                     <svg id='octo' style="width: 1.2rem; padding-left: 5px; vertical-align: middle;"
@@ -250,18 +283,32 @@
             'current-time', 'duration', 'mute', 'volume', 'captions',
             'settings', 'pip', 'airplay', 'download', 'fullscreen'
         ];
+        
         document.addEventListener('DOMContentLoaded', () => {
             const player = Plyr.setup('.player', { controls });
+            
+            // Logic to set External Player Links
+            const videoTag = document.getElementById('video-player');
+            const videoUrl = videoTag.getAttribute('src');
+
+            if(videoUrl) {
+                // VLC Link
+                document.getElementById('vlc-btn').href = `vlc://${videoUrl}`;
+                
+                // MX Player Link (Android Intent)
+                document.getElementById('mx-btn').href = `intent:${videoUrl}#Intent;package=com.mxtech.videoplayer.ad;S.title=${document.title};end`;
+                
+                // PlayIt Link
+                document.getElementById('playit-btn').href = `playit://playvideourl?url=${videoUrl}`;
+            }
         });
 
         const body = document.querySelector('body');
         const footer = document.querySelector('footer');
         const toogle = document.querySelector('.toogle');
         
-        // Theme Toggle Logic
         toogle.onclick = () => {
             body.classList.toggle('dark');
-            // Adding subtle transition for smoother switch
             body.style.transition = "background 0.5s ease, color 0.5s ease";
         }
     </script>

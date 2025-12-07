@@ -82,7 +82,7 @@
       },
        "MY_PASS": {
           "description": "Leave empty if dont need password else enter Your Password",
-          "value": "None",
+          "value": "True",
           "required": false
       },
       "BIND_ADRESS": {
@@ -109,3 +109,4 @@
       }
   }
 }
+
